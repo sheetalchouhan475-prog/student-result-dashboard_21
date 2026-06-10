@@ -15,7 +15,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
 uploaded_files = st.file_uploader(
     "Upload RGPV Marksheets",
     type=["pdf"],
@@ -42,31 +41,15 @@ if uploaded_files:
         # Student Information
         # -----------------------
 
-        roll_match = re.search(
-            r'Roll No\.\s*([A-Z0-9]+)',
-            text
-        )
+        roll_match = re.search(r'Roll No\.\s*([A-Z0-9]+)', text)
 
-        course_match = re.search(
-            r'Course\s+([A-Za-z\. ]+)',
-            text
-        )
+        course_match = re.search(r'Course\s+([A-Za-z\. ]+)', text)
 
-        branch_match = re.search(
-            r'Branch\s+([A-Z& ]+)',
-            text
-        )
+        branch_match = re.search(r'Branch\s+([A-Z& ]+)', text)
 
-        semester_match = re.search(
-            r'Semester\s+(\d+)',
-            text
-        )
+        semester_match = re.search(r'Semester\s+(\d+)', text)
 
-        name_match = re.search(
-            r'Name\s+(.*?)\s+Roll\s+No',
-            text,
-            re.DOTALL
-        )
+        name_match = re.search(r'Name\s+(.*?)\s+Roll\s+No', text, re.DOTALL)
 
         name = (
             " ".join(name_match.group(1).split())
@@ -127,15 +110,32 @@ if uploaded_files:
     # Final DataFrame
     # -----------------------
 
-    final_df = final_df[
-        base_cols + sorted(subject_cols)
+    final_df = pd.DataFrame(student_rows)
+
+    base_cols = [
+        "Name",
+        "Roll No",
+        "Course",
+        "Branch",
+        "Semester",
+        "No of Theory Papers",
+        "No of Practical Papers"
     ]
 
-    # Course Branch Semester Heading
+    subject_cols = [
+        c for c in final_df.columns
+        if c not in base_cols
+    ]
 
-    course_name = final_df["Course"].iloc[0]
-    branch_name = final_df["Branch"].iloc[0]
-    semester_no = final_df["Semester"].iloc[0]
+    final_df = final_df[base_cols + sorted(subject_cols)]
+
+    # -----------------------
+    # 🔥 ONE LINE HEADING FIX (MAIN CHANGE)
+    # -----------------------
+
+    course_name = final_df["Course"].iloc[0] if "Course" in final_df.columns else "N/A"
+    branch_name = final_df["Branch"].iloc[0] if "Branch" in final_df.columns else "N/A"
+    semester_no = final_df["Semester"].iloc[0] if "Semester" in final_df.columns else "N/A"
 
     st.markdown(
         f"""
@@ -146,27 +146,23 @@ if uploaded_files:
         unsafe_allow_html=True
     )
 
-    st.success(
-        f"{len(uploaded_files)} Marksheets Processed Successfully"
-    )
+    st.success(f"{len(uploaded_files)} Marksheets Processed Successfully")
 
     st.subheader("Student Result Table")
+
+    st.dataframe(
+        final_df,
+        use_container_width=True
+    )
+
     # -----------------------
     # Excel Download
     # -----------------------
 
     excel_buffer = BytesIO()
 
-    with pd.ExcelWriter(
-        excel_buffer,
-        engine="openpyxl"
-    ) as writer:
-
-        final_df.to_excel(
-            writer,
-            sheet_name="Results",
-            index=False
-        )
+    with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
+        final_df.to_excel(writer, sheet_name="Results", index=False)
 
     st.download_button(
         label="Download Excel File",
@@ -192,9 +188,7 @@ if uploaded_files:
 
         grade_counts = grades.value_counts()
 
-        fig, ax = plt.subplots(
-            figsize=(7,7)
-        )
+        fig, ax = plt.subplots(figsize=(7,7))
 
         ax.pie(
             grade_counts.values,
@@ -203,9 +197,7 @@ if uploaded_files:
             startangle=90
         )
 
-        ax.set_title(
-            f"Grade Distribution - {selected_subject}"
-        )
+        ax.set_title(f"Grade Distribution - {selected_subject}")
 
         st.pyplot(fig)
 
@@ -213,24 +205,15 @@ if uploaded_files:
     # Theory Subject Analysis
     # -----------------------
 
-    st.subheader(
-        "Theory Subject Performance Analysis"
-    )
+    st.subheader("Theory Subject Performance Analysis")
 
     grade_points = {
-        "A+": 10,
-        "A": 9,
-        "B+": 8,
-        "B": 7,
-        "C+": 6,
-        "C": 5,
-        "D": 4,
-        "F": 0
+        "A+": 10, "A": 9, "B+": 8, "B": 7,
+        "C+": 6, "C": 5, "D": 4, "F": 0
     }
 
     theory_subjects = [
-        col for col in subject_cols
-        if col.endswith("-[T]")
+        col for col in subject_cols if col.endswith("-[T]")
     ]
 
     subject_performance = {}
@@ -242,29 +225,18 @@ if uploaded_files:
         scores = []
 
         for grade in grades:
-
             grade = str(grade).strip()
-
             if grade in grade_points:
-                scores.append(
-                    grade_points[grade]
-                )
+                scores.append(grade_points[grade])
 
         if len(scores) > 0:
-
-            subject_performance[subject] = (
-                sum(scores) / len(scores)
-            )
+            subject_performance[subject] = sum(scores) / len(scores)
 
     if len(subject_performance) > 0:
 
         performance_df = pd.DataFrame({
-            "Subject": list(
-                subject_performance.keys()
-            ),
-            "Average Score": list(
-                subject_performance.values()
-            )
+            "Subject": list(subject_performance.keys()),
+            "Average Score": list(subject_performance.values())
         })
 
         performance_df = performance_df.sort_values(
@@ -272,14 +244,9 @@ if uploaded_files:
             ascending=False
         )
 
-        st.dataframe(
-            performance_df,
-            use_container_width=True
-        )
+        st.dataframe(performance_df, use_container_width=True)
 
-        fig2, ax2 = plt.subplots(
-            figsize=(8,8)
-        )
+        fig2, ax2 = plt.subplots(figsize=(8,8))
 
         ax2.pie(
             performance_df["Average Score"],
@@ -288,16 +255,13 @@ if uploaded_files:
             startangle=90
         )
 
-        ax2.set_title(
-            "Theory Subject Performance"
-        )
+        ax2.set_title("Theory Subject Performance")
 
         st.pyplot(fig2)
 
-        st.success(
-            f"Best Subject: {performance_df.iloc[0]['Subject']}"
-        )
+        st.success(f"Best Subject: {performance_df.iloc[0]['Subject']}")
 
-        st.error(
-            f"Weakest Subject: {performance_df.iloc[-1]['Subject']}"
-        )
+        st.error(f"Weakest Subject: {performance_df.iloc[-1]['Subject']}")
+
+else:
+    st.info("Please upload PDF marksheets")
