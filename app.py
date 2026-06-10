@@ -15,10 +15,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown(
-    "<h1 style='text-align:center;'>Result Analysis</h1>",
-    unsafe_allow_html=True
-)
+
 
 uploaded_files = st.file_uploader(
     "Upload RGPV Marksheets",
