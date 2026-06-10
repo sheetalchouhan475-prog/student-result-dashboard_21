@@ -229,7 +229,8 @@ for i in range(0, len(theory_subjects), 4):
 
                     ax.set_title(subject)
 
-                    st.pyplot(fig)# ================= DOWNLOAD THEORY PIE CHARTS =================
+                    st.pyplot(fig)
+                    # ================= DOWNLOAD THEORY PIE CHARTS =================
 
 theory_zip_buffer = BytesIO()
 
@@ -276,7 +277,8 @@ st.download_button(
     mime="application/zip"
 )
                 
-                    st.pyplot(fig)# ================= PRACTICAL SUBJECT PIE CHARTS =================
+                    st.pyplot(fig)
+# ================= PRACTICAL SUBJECT PIE CHARTS =================
 
 st.subheader("🧪 Individual Practical Subject Analysis")
 
@@ -315,7 +317,8 @@ for i in range(0, len(practical_subjects), 4):
 
                     ax.set_title(subject)
 
-                    st.pyplot(fig)# ================= DOWNLOAD PRACTICAL PIE CHARTS =================
+                    st.pyplot(fig)
+                    # ================= DOWNLOAD PRACTICAL PIE CHARTS =================
 
 zip_buffer = BytesIO()
 
