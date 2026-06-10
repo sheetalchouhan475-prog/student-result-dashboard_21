@@ -229,6 +229,47 @@ for i in range(0, len(theory_subjects), 4):
                     ax.set_title(subject)
 
                     st.pyplot(fig)
+                
+                    st.pyplot(fig)# ================= PRACTICAL SUBJECT PIE CHARTS =================
 
+st.subheader("🧪 Individual Practical Subject Analysis")
+
+practical_subjects = [
+    col for col in subject_cols
+    if col.endswith("-[P]")
+]
+
+# 4 pie charts per row
+for i in range(0, len(practical_subjects), 4):
+
+    cols = st.columns(4)
+
+    for j in range(4):
+
+        if i + j < len(practical_subjects):
+
+            subject = practical_subjects[i + j]
+
+            with cols[j]:
+
+                grades = final_df[subject].dropna()
+
+                if len(grades) > 0:
+
+                    grade_counts = grades.value_counts()
+
+                    fig, ax = plt.subplots(figsize=(4, 4))
+
+                    ax.pie(
+                        grade_counts.values,
+                        labels=grade_counts.index,
+                        autopct="%1.1f%%",
+                        startangle=90
+                    )
+
+                    ax.set_title(subject)
+
+                    st.pyplot(fig)
+                   
 else:
     st.info("Please upload PDF marksheets")
