@@ -64,7 +64,7 @@ if uploaded_files:
 
         for line in lines:
             match = re.search(
-                r'([A-Z]{2,4}\d{2,4})\s*-\s*(T|P).*?(A\+|A|B\+|B|C\+|C|D|F)',
+                r'([A-Z]{2,4}\d{2,4})\s*-\s*\[(T|P)\].*?(A\+|A|B\+|B|C\+|C|D|F)',
                 line
             )
 
@@ -118,26 +118,33 @@ if uploaded_files:
 
     st.success(f"{len(uploaded_files)} Marksheets Processed Successfully")
 
-    # ---------------- SUMMARY ----------------
+    # ================= LEFT + RIGHT LAYOUT =================
     col1, col2 = st.columns([1, 2])
 
+    # ---------------- LEFT SIDE ----------------
     with col1:
         st.subheader("📊 Summary")
-        st.metric("No. of Students", len(final_df))
-        st.metric("Theory Papers", final_df["No of Theory Papers"].sum())
-        st.metric("Practical Papers", final_df["No of Practical Papers"].sum())
 
+        total_students = len(final_df)
+        total_theory = final_df["No of Theory Papers"].sum()
+        total_practical = final_df["No of Practical Papers"].sum()
+
+        st.metric("No. of Students", total_students)
+        st.metric("No. of Theory Papers", total_theory)
+        st.metric("No. of Practical Papers", total_practical)
+
+    # ---------------- RIGHT SIDE ----------------
     with col2:
-        st.subheader("📈 Theory Subject Performance")
+        st.subheader("📈 Theory Subject Bar Chart")
 
         theory_subjects = [col for col in subject_cols if col.endswith("-[T]")]
+
+        subject_scores = {}
 
         grade_points = {
             "A+": 10, "A": 9, "B+": 8, "B": 7,
             "C+": 6, "C": 5, "D": 4, "F": 0
         }
-
-        subject_scores = {}
 
         for subject in theory_subjects:
             grades = final_df[subject].dropna()
@@ -152,39 +159,76 @@ if uploaded_files:
                 subject_scores[subject] = sum(scores) / len(scores)
 
         if subject_scores:
+
             fig, ax = plt.subplots(figsize=(10, 5))
-            ax.bar(subject_scores.keys(), subject_scores.values())
+
+            ax.bar(
+                subject_scores.keys(),
+                subject_scores.values()
+            )
+
+            ax.set_xlabel("Subjects")
+            ax.set_ylabel("Average Score")
+            ax.set_title("Theory Subject Performance")
             plt.xticks(rotation=45)
+
             st.pyplot(fig)
 
     # ---------------- TABLE ----------------
     st.subheader("Student Result Table")
     st.dataframe(final_df, use_container_width=True)
 
-    # ================= 4 PIE CHARTS =================
-    st.subheader("📊 Individual Theory Subject Pie Charts")
+    # ---------------- DOWNLOAD ----------------
+    excel_buffer = BytesIO()
 
-    theory_subjects = [col for col in subject_cols if col.endswith("-[T]")]
+    with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
+        final_df.to_excel(writer, index=False, sheet_name="Results")
 
-    selected_subjects = theory_subjects[:4]   # first 4 subjects
+    st.download_button(
+        "Download Excel",
+        excel_buffer.getvalue(),
+        file_name="RGPV_Result.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )# ================= PIE CHARTS OF THEORY SUBJECTS =================
+
+st.subheader("📊 Individual Theory Subject Analysis")
+
+theory_subjects = [
+    col for col in subject_cols
+    if col.endswith("-[T]")
+]
+
+# 4 pie charts per row
+for i in range(0, len(theory_subjects), 4):
 
     cols = st.columns(4)
 
-    for i, subject in enumerate(selected_subjects):
+    for j in range(4):
 
-        with cols[i]:
+        if i + j < len(theory_subjects):
 
-            st.caption(subject)
+            subject = theory_subjects[i + j]
 
-            grades = final_df[subject].dropna()
+            with cols[j]:
 
-            if len(grades) > 0:
+                grades = final_df[subject].dropna()
 
-                grade_counts = grades.value_counts()
+                if len(grades) > 0:
 
-                fig, ax = plt.subplots(figsize=(3, 3))
+                    grade_counts = grades.value_counts()
 
-                ax.pie(
-                    grade_counts.values,
-                    labels=grade_counts.index,
-                    autopct="%
+                    fig, ax = plt.subplots(figsize=(4, 4))
+
+                    ax.pie(
+                        grade_counts.values,
+                        labels=grade_counts.index,
+                        autopct="%1.1f%%",
+                        startangle=90
+                    )
+
+                    ax.set_title(subject)
+
+                    st.pyplot(fig)
+
+else:
+    st.info("Please upload PDF marksheets")
