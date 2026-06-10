@@ -127,40 +127,11 @@ if uploaded_files:
     # Final DataFrame
     # -----------------------
 
-    final_df = pd.DataFrame(student_rows)
-
-    base_cols = [
-        "Name",
-        "Roll No",
-        "Course",
-        "Branch",
-        "Semester",
-        "No of Theory Papers",
-        "No of Practical Papers"
-    ]
-
-    subject_cols = [
-        c for c in final_df.columns
-        if c not in base_cols
-    ]
-
-   final_df = final_df[
-    base_cols + sorted(subject_cols)
-]final_df = final_df[
+    final_df = final_df[
         base_cols + sorted(subject_cols)
     ]
 
-    course_name = final_df["Course"].iloc[0]
-    branch_name = final_df["Branch"].iloc[0]
-    semester_no = final_df["Semester"].iloc[0]
-
-# Course Branch Semester Heading
-
-course_name = final_df["Course"].iloc[0]
-branch_name = final_df["Branch"].iloc[0]
-semester_no = final_df["Semester"].iloc[0]
-
-
+    # Course Branch Semester Heading
 
     course_name = final_df["Course"].iloc[0]
     branch_name = final_df["Branch"].iloc[0]
@@ -168,35 +139,18 @@ semester_no = final_df["Semester"].iloc[0]
 
     st.markdown(
         f"""
-        <h3 style='text-align:center;'>
+        <h3 style='text-align:center; color:blue;'>
         Course: {course_name} | Branch: {branch_name} | Semester: {semester_no}
         </h3>
         """,
         unsafe_allow_html=True
-    )course_name = final_df["Course"].iloc[0]
-branch_name = final_df["Branch"].iloc[0]
-semester_no = final_df["Semester"].iloc[0]
-
-st.markdown(
-    f"""
-    <h3 style='text-align:center; color:blue;'>
-    Course: {course_name} | Branch: {branch_name} | Semester: {semester_no}
-    </h3>
-    """,
-    unsafe_allow_html=True
-)
+    )
 
     st.success(
         f"{len(uploaded_files)} Marksheets Processed Successfully"
     )
 
     st.subheader("Student Result Table")
-
-    st.dataframe(
-        final_df,
-        use_container_width=True
-    )
-
     # -----------------------
     # Excel Download
     # -----------------------
