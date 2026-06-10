@@ -270,6 +270,45 @@ for i in range(0, len(practical_subjects), 4):
                     ax.set_title(subject)
 
                     st.pyplot(fig)
+                    # ================= BEST & WEAKEST PERFORMANCE =================
+
+st.subheader("🏆 Subject Performance Analysis")
+
+all_subject_scores = {}
+
+for subject in subject_cols:
+
+    grades = final_df[subject].dropna()
+
+    scores = [
+        grade_points[str(g).strip()]
+        for g in grades
+        if str(g).strip() in grade_points
+    ]
+
+    if scores:
+        all_subject_scores[subject] = sum(scores) / len(scores)
+
+if all_subject_scores:
+
+    best_subject = max(all_subject_scores, key=all_subject_scores.get)
+    weakest_subject = min(all_subject_scores, key=all_subject_scores.get)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.success(
+            f"🏆 Best Performance Subject\n\n"
+            f"{best_subject}\n\n"
+            f"Average Score: {all_subject_scores[best_subject]:.2f}"
+        )
+
+    with col2:
+        st.error(
+            f"📉 Weakest Performance Subject\n\n"
+            f"{weakest_subject}\n\n"
+            f"Average Score: {all_subject_scores[weakest_subject]:.2f}"
+        )
                    
 else:
     st.info("Please upload PDF marksheets")
