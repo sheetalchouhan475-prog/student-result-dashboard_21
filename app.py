@@ -144,13 +144,28 @@ if uploaded_files:
         if c not in base_cols
     ]
 
-    final_df = final_df[
-        base_cols + sorted(subject_cols)
-    ]
+   final_df = final_df[
+    base_cols + sorted(subject_cols)
+]
 
-    st.success(
-        f"{len(uploaded_files)} Marksheets Processed Successfully"
-    )
+# Course Branch Semester Heading
+
+course_name = final_df["Course"].iloc[0]
+branch_name = final_df["Branch"].iloc[0]
+semester_no = final_df["Semester"].iloc[0]
+
+st.markdown(
+    f"""
+    <h3 style='text-align:center;'>
+    Course: {course_name} | Branch: {branch_name} | Semester: {semester_no}
+    </h3>
+    """,
+    unsafe_allow_html=True
+)
+
+st.success(
+    f"{len(uploaded_files)} Marksheets Processed Successfully"
+)
 
     st.subheader("Student Result Table")
 
