@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 
 st.set_page_config(
-    page_title="RGPV Result Analysis",
+    page_title="Result Analysis",
     layout="wide"
 )
 
@@ -14,6 +14,7 @@ st.markdown(
     "<h1 style='text-align:center;'>Result Analysis</h1>",
     unsafe_allow_html=True
 )
+
 
 uploaded_files = st.file_uploader(
     "Upload RGPV Marksheets",
@@ -150,21 +151,6 @@ if uploaded_files:
     st.success(
         f"{len(uploaded_files)} Marksheets Processed Successfully"
     )
-    course_value = final_df["Course"].iloc[0]
-    branch_value = final_df["Branch"].iloc[0]
-    semester_value = final_df["Semester"].iloc[0]
-	
-   st.markdown(
-    	f"""
-    	<h4 style='text-align:center;'>
-   	 Course: {course_value} |
-    	Branch: {branch_value} |
-    	Semester: {semester_value}
-   	 </h4>
-    	""",
-    	unsafe_allow_html=True
-   )
-
 
     st.subheader("Student Result Table")
 
@@ -322,4 +308,3 @@ if uploaded_files:
 
         st.error(
             f"Weakest Subject: {performance_df.iloc[-1]['Subject']}"
-        )
