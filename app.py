@@ -173,7 +173,18 @@ semester_no = final_df["Semester"].iloc[0]
         </h3>
         """,
         unsafe_allow_html=True
-    )
+    )course_name = final_df["Course"].iloc[0]
+branch_name = final_df["Branch"].iloc[0]
+semester_no = final_df["Semester"].iloc[0]
+
+st.markdown(
+    f"""
+    <h3 style='text-align:center; color:blue;'>
+    Course: {course_name} | Branch: {branch_name} | Semester: {semester_no}
+    </h3>
+    """,
+    unsafe_allow_html=True
+)
 
     st.success(
         f"{len(uploaded_files)} Marksheets Processed Successfully"
