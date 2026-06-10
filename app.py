@@ -308,3 +308,4 @@ if uploaded_files:
 
         st.error(
             f"Weakest Subject: {performance_df.iloc[-1]['Subject']}"
+        )
