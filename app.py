@@ -4,6 +4,7 @@ import pandas as pd
 import re
 import matplotlib.pyplot as plt
 from io import BytesIO
+import zipfile
 
 st.set_page_config(page_title="Result Analysis", layout="wide")
 
@@ -228,7 +229,52 @@ for i in range(0, len(theory_subjects), 4):
 
                     ax.set_title(subject)
 
-                    st.pyplot(fig)
+                    st.pyplot(fig)# ================= DOWNLOAD THEORY PIE CHARTS =================
+
+theory_zip_buffer = BytesIO()
+
+with zipfile.ZipFile(theory_zip_buffer, "w") as zip_file:
+
+    for subject in theory_subjects:
+
+        grades = final_df[subject].dropna()
+
+        if len(grades) > 0:
+
+            grade_counts = grades.value_counts()
+
+            fig, ax = plt.subplots(figsize=(5, 5))
+
+            ax.pie(
+                grade_counts.values,
+                labels=grade_counts.index,
+                autopct="%1.1f%%",
+                startangle=90
+            )
+
+            ax.set_title(subject)
+
+            img_buffer = BytesIO()
+
+            fig.savefig(
+                img_buffer,
+                format="png",
+                bbox_inches="tight"
+            )
+
+            zip_file.writestr(
+                f"{subject}.png",
+                img_buffer.getvalue()
+            )
+
+            plt.close(fig)
+
+st.download_button(
+    label="📥 Download All Theory Pie Charts",
+    data=theory_zip_buffer.getvalue(),
+    file_name="Theory_Pie_Charts.zip",
+    mime="application/zip"
+)
                 
                     st.pyplot(fig)# ================= PRACTICAL SUBJECT PIE CHARTS =================
 
@@ -269,14 +315,55 @@ for i in range(0, len(practical_subjects), 4):
 
                     ax.set_title(subject)
 
-                    st.pyplot(fig)
-                    # ================= BEST & WEAKEST PERFORMANCE =================
+                    st.pyplot(fig)# ================= DOWNLOAD PRACTICAL PIE CHARTS =================
 
-st.subheader("🏆 Subject Performance Analysis")
+zip_buffer = BytesIO()
 
-all_subject_scores = {}
+with zipfile.ZipFile(zip_buffer, "w") as zip_file:
 
-for subject in subject_cols:
+    for subject in practical_subjects:
+
+        grades = final_df[subject].dropna()
+
+        if len(grades) > 0:
+
+            grade_counts = grades.value_counts()
+
+            fig, ax = plt.subplots(figsize=(5, 5))
+
+            ax.pie(
+                grade_counts.values,
+                labels=grade_counts.index,
+                autopct="%1.1f%%",
+                startangle=90
+            )
+
+            ax.set_title(subject)
+
+            img_buffer = BytesIO()
+
+            fig.savefig(img_buffer, format="png", bbox_inches="tight")
+
+            zip_file.writestr(
+                f"{subject}.png",
+                img_buffer.getvalue()
+            )
+
+            plt.close(fig)
+
+st.download_button(
+    label="📥 Download All Practical Pie Charts",
+    data=zip_buffer.getvalue(),
+    file_name="Practical_Pie_Charts.zip",
+    mime="application/zip"
+)
+                 # ================= THEORY SUBJECT PERFORMANCE =================
+
+st.subheader("🏆 Theory Subject Performance")
+
+theory_scores = {}
+
+for subject in theory_subjects:
 
     grades = final_df[subject].dropna()
 
@@ -287,28 +374,26 @@ for subject in subject_cols:
     ]
 
     if scores:
-        all_subject_scores[subject] = sum(scores) / len(scores)
+        theory_scores[subject] = sum(scores) / len(scores)
 
-if all_subject_scores:
+if theory_scores:
 
-    best_subject = max(all_subject_scores, key=all_subject_scores.get)
-    weakest_subject = min(all_subject_scores, key=all_subject_scores.get)
+    best_subject = max(theory_scores, key=theory_scores.get)
+    weakest_subject = min(theory_scores, key=theory_scores.get)
 
     col1, col2 = st.columns(2)
 
     with col1:
         st.success(
-            f"🏆 Best Performance Subject\n\n"
+            f"🏆 Best Theory Subject\n\n"
             f"{best_subject}\n\n"
-            f"Average Score: {all_subject_scores[best_subject]:.2f}"
+            f"Average Score: {theory_scores[best_subject]:.2f}"
         )
 
     with col2:
         st.error(
-            f"📉 Weakest Performance Subject\n\n"
+            f"📉 Weakest Theory Subject\n\n"
             f"{weakest_subject}\n\n"
-            f"Average Score: {all_subject_scores[weakest_subject]:.2f}"
-        )
-                   
-else:
+            f"Average Score: {theory_scores[weakest_subject]:.2f}"
+        )else:
     st.info("Please upload PDF marksheets")
